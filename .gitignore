@@ -7,3 +7,5 @@ certs
 *.crt
 *.key
 *.egg-info
+build
+dist

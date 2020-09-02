@@ -12,46 +12,16 @@ from aiohttp_requests import requests
 import josepy as jose
 import json
 
+from acmeasync.jws import JWS
+
 ACC_KEY_BITS = 2048
 
 
-class Header(jose.Header):  # type: ignore
-    nonce = jose.Field("nonce", omitempty=True)
-    kid = jose.Field("kid", omitempty=True)
-    url = jose.Field("url", omitempty=True)
-
-
-class Signature(jose.Signature):  # type: ignore
-    __slots__ = jose.Signature._orig_slots  # pylint: disable=no-member
-    header_cls = Header
-    header = jose.Field(
-        "header", omitempty=True, default=header_cls(), decoder=header_cls.from_json
-    )
-
-
-class JWS(jose.JWS):  # type: ignore
-    signature_cls = Signature
-    __slots__ = jose.JWS._orig_slots
-
-    @classmethod
-    # pylint: disable=arguments-differ
-    def sign(cls, payload, key, alg, nonce, url=None, kid=None):
-        # Per ACME spec, jwk and kid are mutually exclusive, so only include a
-        # jwk field if kid is not provided.
-        include_jwk = kid is None
-        return super(JWS, cls).sign(
-            payload,
-            key=key,
-            alg=alg,
-            protect=frozenset(["nonce", "url", "kid", "jwk", "alg"]),
-            nonce=nonce,
-            url=url,
-            kid=kid,
-            include_jwk=include_jwk,
-        )
-
-
 class Updatable:
+    """
+        An object that is updatable via post-as-get.
+    """
+
     _acme: "ACMELE"
     _location: str
     data: Dict[str, Any]
@@ -69,6 +39,10 @@ class Updatable:
 
 
 class Representable:
+    """
+        An object that is repr()able.
+    """
+
     data: Dict[str, Any]
 
     def __repr__(self) -> str:
@@ -76,6 +50,10 @@ class Representable:
 
 
 class Statusable(Updatable):
+    """
+        An object that has a status field that can be awaited upon changing.
+    """
+
     data: Dict[str, Any]
 
     @property
@@ -83,6 +61,9 @@ class Statusable(Updatable):
         return cast(str, self.data["status"])
 
     async def await_status(self, status: str, timeout: int = 90) -> None:
+        """
+            Await self.data['status'] being equal to `status`
+        """
         end = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
         while self.status != status and datetime.datetime.now() < end:
             await self.update()
@@ -95,6 +76,9 @@ class Statusable(Updatable):
             )
 
     async def await_not_status(self, status: str, timeout: int = 90) -> None:
+        """
+            Await self.data['status'] not being equal to `status`
+        """
         end = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
         while self.status == status and datetime.datetime.now() < end:
             await self.update()

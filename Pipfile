@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[requires]
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
+
+[packages]
+acmeasync = {editable = true, path = "."}
+
+[dev-packages]
+pylint = "*"
+autopep8 = "*"
+black = "*"
+mypy = "*"
+flake8 = "*"
+pre-commit = "*"

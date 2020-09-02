@@ -1,0 +1,380 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>acmeasync.acmele &#8212; ACMEasync  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for acmeasync.acmele</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.backends</span> <span class="kn">import</span> <span class="n">default_backend</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives.asymmetric</span> <span class="kn">import</span> <span class="n">rsa</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">import</span> <span class="nn">OpenSSL</span>
+<span class="kn">import</span> <span class="nn">aiohttp</span>
+<span class="kn">from</span> <span class="nn">aiohttp_requests</span> <span class="kn">import</span> <span class="n">requests</span>
+<span class="kn">import</span> <span class="nn">josepy</span> <span class="k">as</span> <span class="nn">jose</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">ACC_KEY_BITS</span> <span class="o">=</span> <span class="mi">2048</span>
+
+
+<div class="viewcode-block" id="Header"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Header">[docs]</a><span class="k">class</span> <span class="nc">Header</span><span class="p">(</span><span class="n">jose</span><span class="o">.</span><span class="n">Header</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
+    <span class="n">nonce</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s2">&quot;nonce&quot;</span><span class="p">,</span> <span class="n">omitempty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">kid</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s2">&quot;kid&quot;</span><span class="p">,</span> <span class="n">omitempty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="n">omitempty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Signature"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Signature">[docs]</a><span class="k">class</span> <span class="nc">Signature</span><span class="p">(</span><span class="n">jose</span><span class="o">.</span><span class="n">Signature</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Signature</span><span class="o">.</span><span class="n">_orig_slots</span>  <span class="c1"># pylint: disable=no-member</span>
+    <span class="n">header_cls</span> <span class="o">=</span> <span class="n">Header</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
+        <span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="n">omitempty</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">header_cls</span><span class="p">(),</span> <span class="n">decoder</span><span class="o">=</span><span class="n">header_cls</span><span class="o">.</span><span class="n">from_json</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="JWS"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.JWS">[docs]</a><span class="k">class</span> <span class="nc">JWS</span><span class="p">(</span><span class="n">jose</span><span class="o">.</span><span class="n">JWS</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
+    <span class="n">signature_cls</span> <span class="o">=</span> <span class="n">Signature</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">JWS</span><span class="o">.</span><span class="n">_orig_slots</span>
+
+<div class="viewcode-block" id="JWS.sign"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.JWS.sign">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="c1"># pylint: disable=arguments-differ</span>
+    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">nonce</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Per ACME spec, jwk and kid are mutually exclusive, so only include a</span>
+        <span class="c1"># jwk field if kid is not provided.</span>
+        <span class="n">include_jwk</span> <span class="o">=</span> <span class="n">kid</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">JWS</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span>
+            <span class="n">payload</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+            <span class="n">alg</span><span class="o">=</span><span class="n">alg</span><span class="p">,</span>
+            <span class="n">protect</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">([</span><span class="s2">&quot;nonce&quot;</span><span class="p">,</span> <span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;kid&quot;</span><span class="p">,</span> <span class="s2">&quot;jwk&quot;</span><span class="p">,</span> <span class="s2">&quot;alg&quot;</span><span class="p">]),</span>
+            <span class="n">nonce</span><span class="o">=</span><span class="n">nonce</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+            <span class="n">kid</span><span class="o">=</span><span class="n">kid</span><span class="p">,</span>
+            <span class="n">include_jwk</span><span class="o">=</span><span class="n">include_jwk</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Updatable"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Updatable">[docs]</a><span class="k">class</span> <span class="nc">Updatable</span><span class="p">:</span>
+    <span class="n">_acme</span><span class="p">:</span> <span class="s2">&quot;ACMELE&quot;</span>
+    <span class="n">_location</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acme</span><span class="p">:</span> <span class="s2">&quot;ACMELE&quot;</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acme</span> <span class="o">=</span> <span class="n">acme</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="n">location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+<div class="viewcode-block" id="Updatable.update"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Updatable.update">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Updatable&quot;</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acme</span><span class="o">.</span><span class="n">_postJWS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_location</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+
+
+<div class="viewcode-block" id="Representable"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Representable">[docs]</a><span class="k">class</span> <span class="nc">Representable</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="Statusable"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Statusable">[docs]</a><span class="k">class</span> <span class="nc">Statusable</span><span class="p">(</span><span class="n">Updatable</span><span class="p">):</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Statusable.await_status"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Statusable.await_status">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">await_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">90</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> failed to await status </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Actual status </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Statusable.await_not_status"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Statusable.await_not_status">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">await_not_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">90</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> failed to await not status </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Actual status </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Challenge"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Challenge">[docs]</a><span class="k">class</span> <span class="nc">Challenge</span><span class="p">(</span><span class="n">Statusable</span><span class="p">,</span> <span class="n">Representable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acme</span><span class="p">:</span> <span class="s2">&quot;ACMELE&quot;</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">acme</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Challenge.begin"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Challenge.begin">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Challenge&quot;</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acme</span><span class="o">.</span><span class="n">_postJWS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_location</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+
+
+<div class="viewcode-block" id="Authorization"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Authorization">[docs]</a><span class="k">class</span> <span class="nc">Authorization</span><span class="p">(</span><span class="n">Statusable</span><span class="p">,</span> <span class="n">Representable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acme</span><span class="p">:</span> <span class="s2">&quot;ACMELE&quot;</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">acme</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Authorization.challenges"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Authorization.challenges">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">challenges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">challType</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Challenge</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Challenge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_acme</span><span class="p">,</span> <span class="n">chall</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">],</span> <span class="n">chall</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">chall</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;challenges&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">challType</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">chall</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">challType</span>
+        <span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="Order"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Order">[docs]</a><span class="k">class</span> <span class="nc">Order</span><span class="p">(</span><span class="n">Statusable</span><span class="p">,</span> <span class="n">Representable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acme</span><span class="p">:</span> <span class="s2">&quot;ACMELE&quot;</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">acme</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Order.authorizations"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Order.authorizations">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">authorizations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Authorization</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Authorization</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_acme</span><span class="p">,</span> <span class="n">auth</span><span class="p">,</span> <span class="k">await</span> <span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acme</span><span class="o">.</span><span class="n">_postJWS</span><span class="p">(</span><span class="n">auth</span><span class="p">))</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;authorizations&quot;</span><span class="p">]</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="Order.finalize"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Order.finalize">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csr_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Order&quot;</span><span class="p">:</span>
+        <span class="n">csr</span> <span class="o">=</span> <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">load_certificate_request</span><span class="p">(</span>
+            <span class="n">OpenSSL</span><span class="o">.</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span> <span class="n">csr_bytes</span>
+        <span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acme</span><span class="o">.</span><span class="n">_postJWS</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;finalize&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;csr&quot;</span><span class="p">:</span> <span class="n">jose</span><span class="o">.</span><span class="n">encode_csr</span><span class="p">(</span><span class="n">jose</span><span class="o">.</span><span class="n">ComparableX509</span><span class="p">(</span><span class="n">csr</span><span class="p">))}</span>
+        <span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Order.get_cert"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Order.get_cert">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_cert</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acme</span><span class="o">.</span><span class="n">_postJWS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;certificate&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">res</span><span class="o">.</span><span class="n">text</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="ACMELE"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.ACMELE">[docs]</a><span class="k">class</span> <span class="nc">ACMELE</span><span class="p">:</span>
+    <span class="n">__directory_url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">__nonce</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">__account_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">jose</span><span class="o">.</span><span class="n">JWK</span><span class="p">]</span>
+    <span class="n">__kid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory_uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__directory_uri</span> <span class="o">=</span> <span class="n">directory_uri</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__nonce</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__kid</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">account_key_thumbprint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">,</span> <span class="n">jose</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span><span class="o">.</span><span class="n">thumbprint</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ACMELE.begin"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.ACMELE.begin">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__directory_uri</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__directory</span> <span class="o">=</span> <span class="k">await</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__directory</span><span class="p">[</span><span class="s2">&quot;newNonce&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__nonce</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Replay-Nonce&quot;</span><span class="p">]</span></div>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">nonce</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Replay-Nonce&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nonce</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__nonce</span> <span class="o">=</span> <span class="n">nonce</span>
+
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_postJWS</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponse</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">JWS</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">body</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">body</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span><span class="p">,</span>
+            <span class="n">alg</span><span class="o">=</span><span class="n">jose</span><span class="o">.</span><span class="n">jwa</span><span class="o">.</span><span class="n">RS256</span><span class="p">,</span>
+            <span class="n">nonce</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__nonce</span><span class="p">,</span>
+            <span class="n">kid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__kid</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">json_dumps</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__post</span><span class="p">(</span>
+            <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/jose+json&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ACMELE.loadAccount"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.ACMELE.loadAccount">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">loadAccount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">pathKey</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pathKey</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">with</span> <span class="n">pathKey</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">JWKRSA</span><span class="o">.</span><span class="n">json_loads</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_postJWS</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__directory</span><span class="p">[</span><span class="s2">&quot;newAccount&quot;</span><span class="p">],</span>
+            <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span><span class="o">.</span><span class="n">to_json</span><span class="p">(),</span> <span class="s2">&quot;onlyReturnExisting&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;Location&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__kid</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Location&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ACMELE.createAccount"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.ACMELE.createAccount">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">createAccount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">termsOfServiceAgreed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">JWKRSA</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">rsa</span><span class="o">.</span><span class="n">generate_private_key</span><span class="p">(</span>
+                    <span class="n">public_exponent</span><span class="o">=</span><span class="mi">65537</span><span class="p">,</span>
+                    <span class="n">key_size</span><span class="o">=</span><span class="n">ACC_KEY_BITS</span><span class="p">,</span>
+                    <span class="n">backend</span><span class="o">=</span><span class="n">default_backend</span><span class="p">(),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_postJWS</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__directory</span><span class="p">[</span><span class="s2">&quot;newAccount&quot;</span><span class="p">],</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;contact&quot;</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mailto:</span><span class="si">{</span><span class="n">email</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;termsOfServiceAgreed&quot;</span><span class="p">:</span> <span class="n">termsOfServiceAgreed</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__kid</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Location&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;valid&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ACMELE.saveAccount"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.ACMELE.saveAccount">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">saveAccount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span><span class="o">.</span><span class="n">json_dumps</span><span class="p">())</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ACMELE.createOrder"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.ACMELE.createOrder">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">createOrder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domains</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Order</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;identifiers&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dns&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">}</span> <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">]}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+
+        <span class="n">body</span> <span class="o">=</span> <span class="n">JWS</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span>
+            <span class="n">payload</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__account_key</span><span class="p">,</span>
+            <span class="n">alg</span><span class="o">=</span><span class="n">jose</span><span class="o">.</span><span class="n">jwa</span><span class="o">.</span><span class="n">RS256</span><span class="p">,</span>
+            <span class="n">nonce</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__nonce</span><span class="p">,</span>
+            <span class="n">kid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__kid</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__directory</span><span class="p">[</span><span class="s2">&quot;newOrder&quot;</span><span class="p">],</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">json_dumps</span><span class="p">()</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__post</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__directory</span><span class="p">[</span><span class="s2">&quot;newOrder&quot;</span><span class="p">],</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/jose+json&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Location&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">ACMEasync</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Greg "GothAck" Miell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -77,7 +77,8 @@
 <dl class="py class">
 <dt id="acmeasync.acmele.Authorization">
 <em class="property">class </em><code class="sig-prename descclassname">acmeasync.acmele.</code><code class="sig-name descname">Authorization</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">acme</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#acmeasync.acmele.ACMELE" title="acmeasync.acmele.ACMELE">acmeasync.acmele.ACMELE</a></span></em>, <em class="sig-param"><span class="n">location</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Any<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acmeasync/acmele.html#Authorization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Authorization" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#acmeasync.acmele.Statusable" title="acmeasync.acmele.Statusable"><code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.acmele.Statusable</span></code></a>, <a class="reference internal" href="#acmeasync.acmele.Representable" title="acmeasync.acmele.Representable"><code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.acmele.Representable</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.util.Statusable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.util.Representable</span></code></p>
+<p>ACME Authorization</p>
 <dl class="py method">
 <dt id="acmeasync.acmele.Authorization.challenges">
 <em class="property">async </em><code class="sig-name descname">challenges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">challType</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#acmeasync.acmele.Challenge" title="acmeasync.acmele.Challenge">acmeasync.acmele.Challenge</a><span class="p">]</span><a class="reference internal" href="_modules/acmeasync/acmele.html#Authorization.challenges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Authorization.challenges" title="Permalink to this definition">¶</a></dt>
@@ -93,7 +94,8 @@
 <dl class="py class">
 <dt id="acmeasync.acmele.Challenge">
 <em class="property">class </em><code class="sig-prename descclassname">acmeasync.acmele.</code><code class="sig-name descname">Challenge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">acme</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#acmeasync.acmele.ACMELE" title="acmeasync.acmele.ACMELE">acmeasync.acmele.ACMELE</a></span></em>, <em class="sig-param"><span class="n">location</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Any<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acmeasync/acmele.html#Challenge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Challenge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#acmeasync.acmele.Statusable" title="acmeasync.acmele.Statusable"><code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.acmele.Statusable</span></code></a>, <a class="reference internal" href="#acmeasync.acmele.Representable" title="acmeasync.acmele.Representable"><code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.acmele.Representable</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.util.Statusable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.util.Representable</span></code></p>
+<p>ACME Challenge</p>
 <dl class="py method">
 <dt id="acmeasync.acmele.Challenge.begin">
 <em class="property">async </em><code class="sig-name descname">begin</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#acmeasync.acmele.Challenge" title="acmeasync.acmele.Challenge">acmeasync.acmele.Challenge</a><a class="reference internal" href="_modules/acmeasync/acmele.html#Challenge.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Challenge.begin" title="Permalink to this definition">¶</a></dt>
@@ -109,7 +111,8 @@
 <dl class="py class">
 <dt id="acmeasync.acmele.Order">
 <em class="property">class </em><code class="sig-prename descclassname">acmeasync.acmele.</code><code class="sig-name descname">Order</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">acme</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#acmeasync.acmele.ACMELE" title="acmeasync.acmele.ACMELE">acmeasync.acmele.ACMELE</a></span></em>, <em class="sig-param"><span class="n">location</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Any<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acmeasync/acmele.html#Order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Order" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#acmeasync.acmele.Statusable" title="acmeasync.acmele.Statusable"><code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.acmele.Statusable</span></code></a>, <a class="reference internal" href="#acmeasync.acmele.Representable" title="acmeasync.acmele.Representable"><code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.acmele.Representable</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.util.Statusable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.util.Representable</span></code></p>
+<p>ACME Order</p>
 <dl class="py method">
 <dt id="acmeasync.acmele.Order.authorizations">
 <em class="property">async </em><code class="sig-name descname">authorizations</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#acmeasync.acmele.Authorization" title="acmeasync.acmele.Authorization">acmeasync.acmele.Authorization</a><span class="p">]</span><a class="reference internal" href="_modules/acmeasync/acmele.html#Order.authorizations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Order.authorizations" title="Permalink to this definition">¶</a></dt>
@@ -128,64 +131,6 @@
 <dl class="py method">
 <dt id="acmeasync.acmele.Order.get_cert">
 <em class="property">async </em><code class="sig-name descname">get_cert</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><a class="reference internal" href="_modules/acmeasync/acmele.html#Order.get_cert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Order.get_cert" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="acmeasync.acmele.Representable">
-<em class="property">class </em><code class="sig-prename descclassname">acmeasync.acmele.</code><code class="sig-name descname">Representable</code><a class="reference internal" href="_modules/acmeasync/acmele.html#Representable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Representable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>An object that is repr()able.</p>
-<dl class="py attribute">
-<dt id="acmeasync.acmele.Representable.data">
-<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Any<span class="p">]</span></em><a class="headerlink" href="#acmeasync.acmele.Representable.data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="acmeasync.acmele.Statusable">
-<em class="property">class </em><code class="sig-prename descclassname">acmeasync.acmele.</code><code class="sig-name descname">Statusable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">acme</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#acmeasync.acmele.ACMELE" title="acmeasync.acmele.ACMELE">acmeasync.acmele.ACMELE</a></span></em>, <em class="sig-param"><span class="n">location</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Any<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acmeasync/acmele.html#Statusable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Statusable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#acmeasync.acmele.Updatable" title="acmeasync.acmele.Updatable"><code class="xref py py-class docutils literal notranslate"><span class="pre">acmeasync.acmele.Updatable</span></code></a></p>
-<p>An object that has a status field that can be awaited upon changing.</p>
-<dl class="py method">
-<dt id="acmeasync.acmele.Statusable.await_not_status">
-<em class="property">async </em><code class="sig-name descname">await_not_status</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">timeout</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">90</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="reference internal" href="_modules/acmeasync/acmele.html#Statusable.await_not_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Statusable.await_not_status" title="Permalink to this definition">¶</a></dt>
-<dd><p>Await self.data[‘status’] not being equal to <cite>status</cite></p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="acmeasync.acmele.Statusable.await_status">
-<em class="property">async </em><code class="sig-name descname">await_status</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">timeout</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">90</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="reference internal" href="_modules/acmeasync/acmele.html#Statusable.await_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Statusable.await_status" title="Permalink to this definition">¶</a></dt>
-<dd><p>Await self.data[‘status’] being equal to <cite>status</cite></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="acmeasync.acmele.Statusable.data">
-<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Any<span class="p">]</span></em><a class="headerlink" href="#acmeasync.acmele.Statusable.data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="acmeasync.acmele.Statusable.status">
-<em class="property">property </em><code class="sig-name descname">status</code><a class="headerlink" href="#acmeasync.acmele.Statusable.status" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="acmeasync.acmele.Updatable">
-<em class="property">class </em><code class="sig-prename descclassname">acmeasync.acmele.</code><code class="sig-name descname">Updatable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">acme</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#acmeasync.acmele.ACMELE" title="acmeasync.acmele.ACMELE">acmeasync.acmele.ACMELE</a></span></em>, <em class="sig-param"><span class="n">location</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Any<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acmeasync/acmele.html#Updatable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Updatable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>An object that is updatable via post-as-get.</p>
-<dl class="py attribute">
-<dt id="acmeasync.acmele.Updatable.data">
-<code class="sig-name descname">data</code><em class="property">: Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Any<span class="p">]</span></em><a class="headerlink" href="#acmeasync.acmele.Updatable.data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="acmeasync.acmele.Updatable.update">
-<em class="property">async </em><code class="sig-name descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#acmeasync.acmele.Updatable" title="acmeasync.acmele.Updatable">acmeasync.acmele.Updatable</a><a class="reference internal" href="_modules/acmeasync/acmele.html#Updatable.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.Updatable.update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

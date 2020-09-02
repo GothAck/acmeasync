@@ -42,6 +42,7 @@
 <dt id="acmeasync.acmele.ACMELE">
 <em class="property">class </em><code class="sig-prename descclassname">acmeasync.acmele.</code><code class="sig-name descname">ACMELE</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory_uri</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/acmeasync/acmele.html#ACMELE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.ACMELE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>ACME Client</p>
 <dl class="py method">
 <dt id="acmeasync.acmele.ACMELE.account_key_thumbprint">
 <em class="property">property </em><code class="sig-name descname">account_key_thumbprint</code><a class="headerlink" href="#acmeasync.acmele.ACMELE.account_key_thumbprint" title="Permalink to this definition">¶</a></dt>
@@ -50,27 +51,32 @@
 <dl class="py method">
 <dt id="acmeasync.acmele.ACMELE.begin">
 <em class="property">async </em><code class="sig-name descname">begin</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="reference internal" href="_modules/acmeasync/acmele.html#ACMELE.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.ACMELE.begin" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get the directory and first nonce.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="acmeasync.acmele.ACMELE.createAccount">
 <em class="property">async </em><code class="sig-name descname">createAccount</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">email</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">termsOfServiceAgreed</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="reference internal" href="_modules/acmeasync/acmele.html#ACMELE.createAccount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.ACMELE.createAccount" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create a new account. Only call this if loadAccount fails.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="acmeasync.acmele.ACMELE.createOrder">
 <em class="property">async </em><code class="sig-name descname">createOrder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domains</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#acmeasync.acmele.Order" title="acmeasync.acmele.Order">acmeasync.acmele.Order</a><a class="reference internal" href="_modules/acmeasync/acmele.html#ACMELE.createOrder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.ACMELE.createOrder" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create a new order for domains.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="acmeasync.acmele.ACMELE.loadAccount">
 <em class="property">async </em><code class="sig-name descname">loadAccount</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="reference internal" href="_modules/acmeasync/acmele.html#ACMELE.loadAccount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.ACMELE.loadAccount" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Load account key from file and get Key ID URL.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="acmeasync.acmele.ACMELE.saveAccount">
 <em class="property">async </em><code class="sig-name descname">saveAccount</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="reference internal" href="_modules/acmeasync/acmele.html#ACMELE.saveAccount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#acmeasync.acmele.ACMELE.saveAccount" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Save account key to filename.</p>
+</dd></dl>
 
 </dd></dl>
 

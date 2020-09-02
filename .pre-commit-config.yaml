@@ -1,4 +1,11 @@
 repos:
+-   repo: local
+    hooks:
+    -   id: update-documentation
+        name: Update docs
+        language: system
+        entry: make html
+        types: [python, text]
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
     hooks:

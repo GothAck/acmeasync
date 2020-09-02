@@ -46,46 +46,16 @@
 <span class="kn">import</span> <span class="nn">josepy</span> <span class="k">as</span> <span class="nn">jose</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
+<span class="kn">from</span> <span class="nn">acmeasync.jws</span> <span class="kn">import</span> <span class="n">JWS</span>
+
 <span class="n">ACC_KEY_BITS</span> <span class="o">=</span> <span class="mi">2048</span>
 
 
-<div class="viewcode-block" id="Header"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Header">[docs]</a><span class="k">class</span> <span class="nc">Header</span><span class="p">(</span><span class="n">jose</span><span class="o">.</span><span class="n">Header</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
-    <span class="n">nonce</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s2">&quot;nonce&quot;</span><span class="p">,</span> <span class="n">omitempty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">kid</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s2">&quot;kid&quot;</span><span class="p">,</span> <span class="n">omitempty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="n">omitempty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Signature"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Signature">[docs]</a><span class="k">class</span> <span class="nc">Signature</span><span class="p">(</span><span class="n">jose</span><span class="o">.</span><span class="n">Signature</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Signature</span><span class="o">.</span><span class="n">_orig_slots</span>  <span class="c1"># pylint: disable=no-member</span>
-    <span class="n">header_cls</span> <span class="o">=</span> <span class="n">Header</span>
-    <span class="n">header</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
-        <span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="n">omitempty</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">header_cls</span><span class="p">(),</span> <span class="n">decoder</span><span class="o">=</span><span class="n">header_cls</span><span class="o">.</span><span class="n">from_json</span>
-    <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="JWS"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.JWS">[docs]</a><span class="k">class</span> <span class="nc">JWS</span><span class="p">(</span><span class="n">jose</span><span class="o">.</span><span class="n">JWS</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
-    <span class="n">signature_cls</span> <span class="o">=</span> <span class="n">Signature</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="n">jose</span><span class="o">.</span><span class="n">JWS</span><span class="o">.</span><span class="n">_orig_slots</span>
-
-<div class="viewcode-block" id="JWS.sign"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.JWS.sign">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="c1"># pylint: disable=arguments-differ</span>
-    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">nonce</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># Per ACME spec, jwk and kid are mutually exclusive, so only include a</span>
-        <span class="c1"># jwk field if kid is not provided.</span>
-        <span class="n">include_jwk</span> <span class="o">=</span> <span class="n">kid</span> <span class="ow">is</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">JWS</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span>
-            <span class="n">payload</span><span class="p">,</span>
-            <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
-            <span class="n">alg</span><span class="o">=</span><span class="n">alg</span><span class="p">,</span>
-            <span class="n">protect</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">([</span><span class="s2">&quot;nonce&quot;</span><span class="p">,</span> <span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;kid&quot;</span><span class="p">,</span> <span class="s2">&quot;jwk&quot;</span><span class="p">,</span> <span class="s2">&quot;alg&quot;</span><span class="p">]),</span>
-            <span class="n">nonce</span><span class="o">=</span><span class="n">nonce</span><span class="p">,</span>
-            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
-            <span class="n">kid</span><span class="o">=</span><span class="n">kid</span><span class="p">,</span>
-            <span class="n">include_jwk</span><span class="o">=</span><span class="n">include_jwk</span><span class="p">,</span>
-        <span class="p">)</span></div></div>
-
-
 <div class="viewcode-block" id="Updatable"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Updatable">[docs]</a><span class="k">class</span> <span class="nc">Updatable</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An object that is updatable via post-as-get.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_acme</span><span class="p">:</span> <span class="s2">&quot;ACMELE&quot;</span>
     <span class="n">_location</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
@@ -103,6 +73,10 @@
 
 
 <div class="viewcode-block" id="Representable"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Representable">[docs]</a><span class="k">class</span> <span class="nc">Representable</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An object that is repr()able.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -110,6 +84,10 @@
 
 
 <div class="viewcode-block" id="Statusable"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Statusable">[docs]</a><span class="k">class</span> <span class="nc">Statusable</span><span class="p">(</span><span class="n">Updatable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An object that has a status field that can be awaited upon changing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 
     <span class="nd">@property</span>
@@ -117,6 +95,9 @@
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="Statusable.await_status"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Statusable.await_status">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">await_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">90</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Await self.data[&#39;status&#39;] being equal to `status`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
@@ -129,6 +110,9 @@
             <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Statusable.await_not_status"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.acmele.Statusable.await_not_status">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">await_not_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">90</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Await self.data[&#39;status&#39;] not being equal to `status`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>

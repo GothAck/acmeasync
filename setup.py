@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="acmeasync",
-    version="0.1.1a1",
+    version="0.1.2a",
     description="ACME v2 Client using asyncio",
     author='Greg "GothAck " Miell',
     author_email="acmeasync@greg.gothack.ninja",

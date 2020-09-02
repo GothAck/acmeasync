@@ -50,7 +50,10 @@ extensions = [
     "m2r2",
 ]
 
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "aiohttp": ("https://aiohttp.readthedocs.io/en/stable/", None),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = [".templates"]
@@ -106,7 +109,9 @@ html_static_path = [".static"]
 # default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
 # 'searchbox.html']``.
 #
-# html_sidebars = {}
+# html_sidebars = {
+#     "**": ['globaltoc.html', 'localtoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html']
+# }
 
 
 # -- Options for HTMLHelp output ---------------------------------------------

@@ -6,6 +6,7 @@ repos:
         language: system
         entry: make html
         types: [python, text]
+        pass_filenames: false
         exclude: >
             (?x)^(
                 docs/.*

@@ -83,6 +83,10 @@ class Order(Statusable, Representable):
 
 
 class ACMELE:
+    """
+    ACME Client
+    """
+
     __directory_url: str
     __nonce: Optional[str]
     __account_key: Optional[jose.JWK]
@@ -103,6 +107,9 @@ class ACMELE:
         )
 
     async def begin(self) -> None:
+        """
+        Get the directory and first nonce.
+        """
         res = await requests.get(self.__directory_uri)
         self.__directory = await res.json()
         res = await requests.head(self.__directory["newNonce"])
@@ -133,6 +140,9 @@ class ACMELE:
         )
 
     async def loadAccount(self, filename: str) -> bool:
+        """
+        Load account key from file and get Key ID URL.
+        """
         pathKey = Path(filename)
         if not pathKey.exists():
             return False
@@ -152,6 +162,9 @@ class ACMELE:
         return True
 
     async def createAccount(self, email: str, termsOfServiceAgreed: bool) -> bool:
+        """
+        Create a new account. Only call this if loadAccount fails.
+        """
         if not self.__account_key:
             self.__account_key = jose.JWKRSA(
                 key=rsa.generate_private_key(
@@ -175,6 +188,9 @@ class ACMELE:
         return bool(data["status"] == "valid")
 
     async def saveAccount(self, filename: str) -> bool:
+        """
+        Save account key to filename.
+        """
         if not self.__account_key:
             return False
         with Path(filename).open("w") as file:
@@ -182,6 +198,9 @@ class ACMELE:
         return True
 
     async def createOrder(self, domains: Iterable[str]) -> Order:
+        """
+        Create a new order for domains.
+        """
         payload = json.dumps(
             {"identifiers": [{"type": "dns", "value": domain} for domain in domains]}
         ).encode("ascii")

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class Updatable:
     """
-        An object that is updatable via post-as-get.
+    An object that is updatable via post-as-get.
     """
 
     _acme: "ACMELE"
@@ -30,7 +30,7 @@ class Updatable:
 
 class Representable:
     """
-        An object that is repr()able.
+    An object that is repr()able.
     """
 
     data: Dict[str, Any]
@@ -41,7 +41,7 @@ class Representable:
 
 class Statusable(Updatable):
     """
-        An object that has a status field that can be awaited upon changing.
+    An object that has a status field that can be awaited upon changing.
     """
 
     data: Dict[str, Any]

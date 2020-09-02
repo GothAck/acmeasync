@@ -1,1 +1,148 @@
-../.build/html/index.html
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ACMEasync &#8212; ACMEasync  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="acmeasync">
+<h1>ACMEasync<a class="headerlink" href="#acmeasync" title="Permalink to this headline">¶</a></h1>
+<p>AsyncIO ACME client for Python 3.</p>
+<div class="section" id="why">
+<h2>Why?<a class="headerlink" href="#why" title="Permalink to this headline">¶</a></h2>
+<p>Moar async moar better. Seriously though, I wanted to utilize Python’s asyncio to create an automatically certifying proxy server that “just works”.</p>
+</div>
+<div class="section" id="how">
+<h2>How?<a class="headerlink" href="#how" title="Permalink to this headline">¶</a></h2>
+<p>You can use the library as is, see <code class="docutils literal notranslate"><span class="pre">acmeasync/__main__.py</span></code> and <code class="docutils literal notranslate"><span class="pre">acmeasync/certbot2.py</span></code> as guides for spinning your own implementations, or use the built in tls reverse proxy (currently raw TCP only).</p>
+<p>To run the proxy:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">DOMAINS</span><span class="o">=</span><span class="s2">&quot;example.com,example.net&quot;</span>
+<span class="nb">export</span> <span class="nv">PORT</span><span class="o">=</span><span class="m">80</span> <span class="c1"># or whatever port you wish to run the ACME challenge http server on, you need root to serve on 80, or you can forward 8080 if you&#39;re running in a docker container for example.</span>
+<span class="nb">export</span> <span class="nv">EMAIL</span><span class="o">=</span><span class="s2">&quot;youremail@example.com&quot;</span>
+<span class="nb">export</span> <span class="nv">PROXIES</span><span class="o">=</span><span class="s2">&quot;8081:towel.blinkenlights.nl:23,8082:towel.blinkenlights.nl:23&quot;</span> <span class="c1"># format: localport:remotehost:remoteport,...</span>
+<span class="nb">export</span> <span class="nv">DIRECTORY_URL</span><span class="o">=</span><span class="s2">&quot;https://acme-v02.api.letsencrypt.org/directory&quot;</span>
+acmeleproxy
+</pre></div>
+</div>
+<p>It’s recommended you run as root so that proxy processes can drop privileges and lose access to your private keys, but this is optional.</p>
+<p>API documentation incoming soon…</p>
+</div>
+<div class="section" id="but-why-python">
+<h2>But why Python?<a class="headerlink" href="#but-why-python" title="Permalink to this headline">¶</a></h2>
+<p>Yeah, I know, the GIL, the proxy server uses multiprocessing to spawn a subprocess per connection, which should give much better performance. This kinda thing exists the nodejs world already, why not python too?</p>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>Pulled in by setup.py:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">acme</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aiohttp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aiohttp-requests</span></code></p></li>
+</ul>
+<p>Required from your OS:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">python3-openssl</span></code></p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">ACMEasync</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Greg "GothAck" Miell.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

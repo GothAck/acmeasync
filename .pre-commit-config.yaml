@@ -6,6 +6,11 @@ repos:
         language: system
         entry: make html
         types: [python, text]
+        exclude: >
+            (?x)^(
+                docs/.*
+                \.build/.*
+            )$
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
     hooks:

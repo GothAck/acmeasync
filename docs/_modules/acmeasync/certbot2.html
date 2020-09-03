@@ -54,14 +54,18 @@
 
 
 <div class="viewcode-block" id="CertBot2"><a class="viewcode-back" href="../../acmeasync.html#acmeasync.certbot2.CertBot2">[docs]</a><span class="k">class</span> <span class="nc">CertBot2</span><span class="p">:</span>
-    <span class="n">PATH_ACCOUNT_KEY</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./account.jwk&quot;</span><span class="p">)</span>
-    <span class="n">PATH_CERTS</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./certs&quot;</span><span class="p">)</span>
+    <span class="n">PATH_BASE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./certbot&quot;</span><span class="p">)</span>
+    <span class="n">PATH_ACCOUNT_KEY</span> <span class="o">=</span> <span class="n">PATH_BASE</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s2">&quot;account.jwk&quot;</span><span class="p">)</span>
+    <span class="n">PATH_CERTS</span> <span class="o">=</span> <span class="n">PATH_BASE</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="s2">&quot;certs&quot;</span><span class="p">)</span>
 
     <span class="n">challenges</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__acme</span> <span class="o">=</span> <span class="n">ACMELE</span><span class="p">(</span><span class="n">DIRECTORY_URL</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">challenges</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">PATH_BASE</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PATH_BASE</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PATH_BASE</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="mo">0o700</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">PATH_CERTS</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">PATH_CERTS</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">PATH_CERTS</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="mo">0o700</span><span class="p">)</span>

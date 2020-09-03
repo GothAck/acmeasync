@@ -20,14 +20,18 @@ DIRECTORY_URL = os.environ.get(
 
 
 class CertBot2:
-    PATH_ACCOUNT_KEY = Path("./account.jwk")
-    PATH_CERTS = Path("./certs")
+    PATH_BASE = Path("./certbot")
+    PATH_ACCOUNT_KEY = PATH_BASE.with_name("account.jwk")
+    PATH_CERTS = PATH_BASE.with_name("certs")
 
     challenges: Dict[str, str]
 
     def __init__(self) -> None:
         self.__acme = ACMELE(DIRECTORY_URL)
         self.challenges = {}
+        if not self.PATH_BASE.exists():
+            self.PATH_BASE.mkdir()
+            self.PATH_BASE.chmod(0o700)
         if not self.PATH_CERTS.exists():
             self.PATH_CERTS.mkdir()
             self.PATH_CERTS.chmod(0o700)

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="acmeasync",
-    version="0.1.2a",
+    version="0.1.3a",
     description="ACME v2 Client using asyncio",
     author='Greg "GothAck " Miell',
     author_email="acmeasync@greg.gothack.ninja",
@@ -22,5 +22,5 @@ setup(
     keywords="letsencrypt acme proxy",
     python_requires=">=3.7",
     install_requires=["acme", "aiohttp", "aiohttp-requests"],
-    entry_points={"console_scripts": ["acmeasyncproxy=acmeasync.__main__"]},
+    entry_points={"console_scripts": ["acmeasyncproxy=acmeasync.__main__:sync_main"]},
 )

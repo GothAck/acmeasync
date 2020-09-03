@@ -69,5 +69,9 @@ async def main() -> None:
     await asyncio.wait([web_task, renew_task] + proxy_tasks)
 
 
-if __name__ == "__main__":
+def sync_main():
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    sync_main()

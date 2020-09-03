@@ -5,6 +5,7 @@ from pathlib import Path
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 import datetime
+import logging
 
 import OpenSSL
 import aiohttp
@@ -14,6 +15,8 @@ import json
 
 from acmeasync.jws import JWS
 from acmeasync.util import Statusable, Representable
+
+logger = logging.getLogger(__name__)
 
 ACC_KEY_BITS = 2048
 
@@ -221,4 +224,9 @@ class ACMELE:
         )
 
         data = await res.json()
+
+        if res.status not in (200, 201):
+            logger.critical(data)
+            raise Exception()
+
         return Order(self, res.headers["Location"], data)

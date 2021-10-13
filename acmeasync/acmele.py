@@ -145,7 +145,13 @@ class ACMELE:
         if not pathKey.exists():
             return False
         with pathKey.open("r") as file:
-            self.__account_key = jose.JWKRSA.json_loads(file.read())
+            return await self.loadAccountData(file.read())
+
+    async def loadAccountData(self, data: str) -> bool:
+        """
+        Load account key from file and get Key ID URL.
+        """
+        self.__account_key = jose.JWKRSA.json_loads(data)
 
         res = await self._postJWS(
             self.__directory["newAccount"],
@@ -191,9 +197,20 @@ class ACMELE:
         """
         if not self.__account_key:
             return False
+        data = await self.saveAccountData()
+        if not data:
+            return False
         with Path(filename).open("w") as file:
-            file.write(self.__account_key.json_dumps())
+            file.write(data)
         return True
+
+    async def saveAccountData(self) -> str:
+        """
+        Save account key to filename.
+        """
+        if not self.__account_key:
+            return False
+        return self.__account_key.json_dumps()
 
     async def createOrder(self, domains: Iterable[str]) -> Order:
         """

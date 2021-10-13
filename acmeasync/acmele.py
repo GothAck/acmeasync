@@ -85,7 +85,7 @@ class ACMELE:
     ACME Client
     """
 
-    __directory_url: str
+    __directory_uri: str
     __nonce: Optional[str]
     __account_key: Optional[jose.JWK]
     __kid: Optional[str]

@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional, Iterable, cast
 from pathlib import Path
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
+import logging
 
 import OpenSSL
 import aiohttp
@@ -15,6 +16,8 @@ from acmeasync.util import Statusable, Representable
 
 ACC_KEY_BITS = 2048
 
+
+logger = logging.getLogger(__name__)
 
 class Challenge(Statusable, Representable):
     """
@@ -212,7 +215,7 @@ class ACMELE:
             return False
         return self.__account_key.json_dumps()
 
-    async def createOrder(self, domains: Iterable[str]) -> Order:
+    async def createOrder(self, domains: Iterable[str]) -> Optional[Order]:
         """
         Create a new order for domains.
         """
@@ -236,4 +239,9 @@ class ACMELE:
         )
 
         data = await res.json()
+
+        if res.status not in (200, 201):
+            logger.critical(data)
+            return None
+
         return Order(self, res.headers["Location"], data)

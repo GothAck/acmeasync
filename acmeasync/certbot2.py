@@ -20,8 +20,9 @@ DIRECTORY_URL = os.environ.get(
 
 
 class CertBot2:
-    PATH_ACCOUNT_KEY = Path("./account.jwk")
-    PATH_CERTS = Path("./certs")
+    PATH_BASE = Path("./certbot")
+    PATH_ACCOUNT_KEY = PATH_BASE / "account.jwk"
+    PATH_CERTS = PATH_BASE / "certs"
 
     challenges: Dict[str, str]
 
@@ -47,13 +48,16 @@ class CertBot2:
 
     async def hasKeyAndCert(self, *domains: str) -> bool:
         filename = ",".join(domains)
-        key_path = self.PATH_CERTS.joinpath(f"{filename}.key")
-        crt_path = self.PATH_CERTS.joinpath(f"{filename}.crt")
+        key_path = self.PATH_CERTS / f"{filename}.key"
+        crt_path = self.PATH_CERTS / f"{filename}.crt"
         return key_path.exists() and crt_path.exists()
 
     async def orderCert(self, *domains: str) -> None:
         logger.info("orderCert")
         order = await self.__acme.createOrder(domains)
+
+        if not order:
+            raise Exception("Failed to create order")
 
         logger.info("orderCert order created")
 
@@ -85,8 +89,8 @@ class CertBot2:
         if order.status != "ready":
             raise Exception(f"Order in invalid status {order.status}")
 
-        key_path = self.PATH_CERTS.joinpath(f"{filename}.key")
-        crt_path = self.PATH_CERTS.joinpath(f"{filename}.crt")
+        key_path = self.PATH_CERTS / f"{filename}.key"
+        crt_path = self.PATH_CERTS / f"{filename}.crt"
 
         key_pem = None
         if key_path.exists():
@@ -128,7 +132,7 @@ class CertBot2:
 
     async def getCrt(self, *domains: str) -> OpenSSL.crypto.X509:
         filename = ",".join(domains)
-        crt_path = self.PATH_CERTS.joinpath(f"{filename}.crt")
+        crt_path = self.PATH_CERTS / f"{filename}.crt"
         with crt_path.open("rb") as fb:
             return OpenSSL.crypto.load_certificate(
                 OpenSSL.crypto.FILETYPE_PEM, fb.read()

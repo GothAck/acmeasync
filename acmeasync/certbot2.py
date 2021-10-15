@@ -30,7 +30,7 @@ class CertBot2:
         self.__acme = ACMELE(DIRECTORY_URL)
         self.challenges = {}
         if not self.PATH_CERTS.exists():
-            self.PATH_CERTS.mkdir()
+            self.PATH_CERTS.mkdir(parents=True)
             self.PATH_CERTS.chmod(0o700)
 
     async def begin(self) -> None:

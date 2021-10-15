@@ -146,6 +146,7 @@ class ACMELE:
         """
         pathKey = Path(filename)
         if not pathKey.exists():
+            logger.critical("Account file %s does not exist", pathKey)
             return False
         with pathKey.open("r") as file:
             return await self.loadAccountData(file.read())
@@ -162,6 +163,7 @@ class ACMELE:
         )
 
         if "Location" not in res.headers:
+            logger.critical("Account key ID lookup failed %s", await res.json())
             return False
 
         self.__kid = res.headers["Location"]
